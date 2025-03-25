@@ -1,0 +1,25 @@
+1.Identify the top five aircraft that received the highest number of service transfers in the past year.
+
+SELECT destination_aircraft_id AS aircraft_id, COUNT(*) AS transfer_count
+FROM Audit_Log
+WHERE action = 'Service Transfer'
+AND timestamp >= DATEADD(YEAR, -1, GETDATE())
+GROUP BY destination_aircraft_id
+ORDER BY transfer_count DESC
+LIMIT 5;
+
+2.List all aircraft that had multiple service transfers within the same 30-day period.
+
+SELECT
+    destination_aircraft_id AS aircraft_id,
+    COUNT(*) AS transfer_count,
+    DATE(timestamp) AS transfer_date
+FROM
+    Audit_Log
+WHERE
+    action = 'Service Transfer'
+    AND timestamp >= NOW() - INTERVAL '30 days'  -- Filter for the last 30 days
+GROUP BY
+    destination_aircraft_id, DATE(timestamp)
+HAVING
+    COUNT(*) > 1;
